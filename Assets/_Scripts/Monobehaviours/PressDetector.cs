@@ -8,7 +8,7 @@ using TMPro;
 public class PressDetector : MonoBehaviour
 {
     float _timePressed = 0f;
-    float _maxTime = 0.5f;
+    float _maxTime = 0.3f;
     float _horizontalInput;
 
     bool _maxTimeReached = false;
@@ -19,7 +19,6 @@ public class PressDetector : MonoBehaviour
     private void Update()
     {
         _timeElapsed.text = "Time elapsed: " + Time.time.ToString("0.00") + "s.";
-        IsKeyPressed();
     }
 
     public bool IsKeyPressed()

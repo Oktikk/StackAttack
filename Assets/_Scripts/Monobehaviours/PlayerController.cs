@@ -4,26 +4,32 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    public bool _disableMovement = false;
-    bool _onGround = true;
+    private bool _isGrounded;
+    private bool _isFacingRight = true;
 
-    //Components
-    Rigidbody2D _rb; //Container for RigidBody2D
+    Rigidbody2D _rb;
 
-    //Movement variables
-    float _moveHorizontal;
-    float _moveVertical;
-    [SerializeField] float _moveSpeed = 60f;
-    [SerializeField] float _jumpPower = 650f;
+    private float _moveHorizontal;
+    private float _moveVertical;
+    [SerializeField] float _moveSpeed;
+    [SerializeField] float _jumpPower;
+    [SerializeField] float _fallMultiplier;
+
+    private Animator _animator;
+
+    [SerializeField] private Transform _groundCheck;
+    [SerializeField] private LayerMask _groundLayer;
+
+    private Vector2 _gravityVector;
 
 
-    // Start is called before the first frame update
     void Start()
     {
         _rb = GetComponent<Rigidbody2D>();
+        _animator = GetComponent<Animator>();
+        _gravityVector = new Vector2(0, -Physics2D.gravity.y);
     }
 
-    // Update is called once per frame
     void Update()
     {
         _moveHorizontal = Input.GetAxisRaw("Horizontal");
@@ -35,45 +41,43 @@ public class PlayerController : MonoBehaviour
         MovePlayer();
     }
 
-    void MovePlayer()
+    private void MovePlayer()
     {
-        if (_moveHorizontal != 0f && !_disableMovement)
+        _isGrounded = Physics2D.OverlapCapsule(_groundCheck.position, new Vector2(0.43f, 0.1f), CapsuleDirection2D.Horizontal, 0, _groundLayer);
+
+        if (_moveHorizontal != 0f)
         {
-            //_rb.velocity = new Vector2(_moveHorizontal * _moveSpeed, 0f);
-            _rb.AddForce(new Vector2(_moveHorizontal * _moveSpeed, 0f));
+            _rb.velocity = new Vector2(_moveHorizontal * _moveSpeed, _rb.velocity.y);
+        }
+        
+        _animator.SetFloat("xDir", _moveHorizontal);
+
+        if (_moveVertical > 0.1 && _isGrounded)
+        {
+            _rb.velocity = new Vector2(_rb.velocity.x, _moveVertical * _jumpPower);
         }
 
-        if(_moveVertical > 0.1 && !_disableMovement && _onGround)
+        if(_rb.velocity.y < 0)
         {
-            //_rb.velocity = new Vector2(0f, _moveVertical * _jumpPower);
-            _rb.AddForce(new Vector2(0f, _moveVertical * _jumpPower));
+            _rb.velocity -= _gravityVector * _fallMultiplier * Time.deltaTime;
         }
-    }
 
-    public void AttachPlayer(GameObject _obj)
-    {
-        _disableMovement = true;
-        transform.parent = _obj.transform;
-    }
-    public void DetachPlayer()
-    {
-        _disableMovement = false;
-        transform.parent = null;
-    }
-
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        if (collision.gameObject.tag == "Ground" || collision.gameObject.tag == "Box")
+        if(_moveHorizontal > 0f && !_isFacingRight)
         {
-            _onGround = true;
+            Flip();
+        }
+        else if(_moveHorizontal < 0f && _isFacingRight)
+        {
+            Flip();
         }
     }
 
-    private void OnTriggerExit2D(Collider2D collision)
+    private void Flip()
     {
-        if (collision.gameObject.tag == "Ground" || collision.gameObject.tag == "Box")
-        {
-            _onGround = false;
-        }
+        _isFacingRight = !_isFacingRight;
+
+        Vector3 scaler = transform.localScale;
+        scaler.x *= -1;
+        transform.localScale = scaler;
     }
 }

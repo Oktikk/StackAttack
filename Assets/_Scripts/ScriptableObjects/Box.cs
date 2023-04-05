@@ -5,8 +5,6 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "Box")]
 public class Box : ScriptableObject
 {
-    public Vector3 position;
-
     public enum Color
     {
         BLUE,
