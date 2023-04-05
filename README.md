@@ -1,0 +1,2 @@
+# StackAttack
+**StackAttack** is my main project right now. It's Unity2D game inspired by old game called StackAttack Junior which was available on Siemens phones. The game consists of moving the falling blocks and arranging them to form a line, which causes the blocks to disappear and accrue points. The goal of the game is to score as many points as possible and survive as long as possible being careful not to be crushed by the falling blocks.
